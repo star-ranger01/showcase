@@ -1,0 +1,192 @@
+Git Version Control --> works a lot better in GitBash
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+GitHub: Multiple Account --> .gitconfig
+
+# Personal-1 account - default config
+Host github.com-<_github_1st-accountname_>
+	HostName github.com
+	User git
+	IdentityFile ~/.ssh/id_rsa<_1st-username_>
+# Personal-2 account - colab config
+Host github.com-<_github_2nd-accountname_>
+        HostName github.com
+        User git
+        IdentityFile ~/.ssh/id_rsa<_2nd-username_>
+
+
+[user]
+	name = star_ranger01
+	email = star_ranger01@comcast.net
+
+Linking Github:
+$git clone git@github.com-<_multipleAccounts_>:<_multipleAccounts_>/<_reponame_>.git --> cloning the repo
+$git remote add origin git@github.com-<_multipleAccounts_>:<_multipleAccounts_>/<_reponame_>.git --> without cloning
+
+
+
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+Staging & Committing --> every commit has a 40 hexidecimal SHA1 Hash. First seven characters are shown.
+$git status
+$git add <_filename_>
+$git add <_filename_> ; git commit -m "_message_"
+$git commit -m "_message_"
+$git commit -a -m "_message_"
+$git push
+$git push git@github.com - _accountsetupname_:GithubAccount/reponame.git
+$git config user.name "_username_"
+$git config user.email "_useremail_"
+$git config --get remote.origin.url
+
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+I don't knows
+$cat
+
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+Branching --> used to work in parallel off of the same exact copy. Git automatically creates & names a branch called: main
+$git branch
+$git branch -a --> shows all the branches: local & remote
+$git branch -r --> shows the remote branches only
+$git branch <_branchname_> --> creates a new branch locally
+$git checkout -b <_branchname_> --> creates new branch and checkout at the same time
+$git checkout <_branchname_>
+
+Local 2nd-Branch --> to push to repo
+$git push origin <_local_2nd-branch_> 
+
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+Working Tree: examine & review
+$git log
+$git log --all --decorate oneline --graph
+$alias graph = "git log --all --decorate --oneline --graph"
+$graph
+$git diff <_branchname_>..<_otherbranchname_>
+
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+Merging
+
+Remotes:
+$git pull
+$git fetch
+$git push
+
+Merging Process --> the move IS ALWAYS to the --> "MASTER/MAIN" branch
+a) Fast-Forward Merge ("master/main" must be in-sync or ahead of its branches to AFFECT ALL THE CHANGES)--> is when the "master/main branch" has that "direct line/clean commit" to a "parent-commit", which will become the "commit-to-master/main branch" in a merge, with that "parent-commit" having no other copy of it by any other branch. Even with multiple commits in between, the requirement is for the "master/main" to catch up with the branch; and therefore, its copy is "up-to-date" or "in-sync" with the tip of the branch.
+$git merge <_branchname_> --> from the "master/main" merge the other branch
+$git branch --merged
+$git branch -d <_branchname_> --> when the "HEAD" is pointing to the same commit as with both the "master/main" & the tip of the branch, then the branch can be deleted.
+$git branch -D <_branchname_> --> to force Git to delete a branch that is depended of its "parent-commit"
+
+b) 3-Way Merge --> when after the "master/main" has caught-up or has "merged-with" one of its branches; will create a "merge commit" so type a commit message. Git examines the "base/parent-commit" of the two branches, along with the tip of those related branches.
+$git merge <_otherbranchname-from_off_of_the_same_"parent-commit"_>
+
+Merge Conflicts ("any-changes" will always win!) --> when merging two branches that on each of their tips have changes that took place in the same line of the same file. Git examines the "base-commit" where the divergent have occurred, along with other branches to resolve the changes. The "changes" always wins over "no-changes".
+$git merge <_branchname_> --> because there are conflicts, the merging process moves into a <_"master/main-merge"_> area to find resolve.
+$git status --> looks different now
+$git merge --abort --> to terminate the merging process then returns to normal operations
+
+Resolutions: --> occurs while in the "merging process"
+Step 1: fix it how you like it
+<<<<<<HEAD
+Conflict areas
+==========
+Conflict areas
+>>>>>>OtherBranch
+
+Step 2: stage the resolution like when committing --> git add, then status, the create a "merge commit-message"
+Step 3: delete the branch
+
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+Checkout a "commit" --> instead of a branch:
+Step 1: choose a commit by using the first 7 hexidigit "commit-hash" --> $git log
+Step 2: $git checkout <_first7HexidigitsCommitHash_> --> read the warning, now the "HEAD" is detached
+
+State of HEAD: the HEAD is "detached" when it is pointing to a commit other than the normal "master/main-commit"
+Resolution:
+A) $git checkout <_branchName_> --> checkout a branch
+B) $git branch <_branchName_> --> to proceed normally, create & checkout a new branch from off of this commit that was checked out resulting in a "HEAD" detached state
+
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+DIRTY !!!
+Working Tree/Directory --> is DIRTY! checkedout many branches without merging the changes, checked out commits which will overide the current working tree (so clean it up via committing those changes or stash it before checking out earlier commits), untracked file(s), commits are stacking up, etc....& Git makes it so that it is complicated to do anything.
+Stash --> is when the changes are not ready to be staged/committed. In order to have a clean Working Tree/Directory "Temporarily", stash the current tree and then checkout other branches to prevent overriding those changes.
+
+Resolution: save the Working Tree/Directory for later.
+Reuse --> stashes can be reused/reapply
+$git stash
+$git stash save "_message_" --> to better manage the stashes when applying them
+$git stash list
+$git stash -p
+$git stash apply --> by its own, git stash will reapply the most recent stash
+$git stash pop --> applies & then removes/delete the most recent stash from the list
+$git stash apply <_label_> --> to reuse/reapply the particular stash other than the most recent stash
+
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+Remotes
+$git remote
+$git remote -v
+$git fetch --> review and/or save to a branch, then use $git merge origin/master
+$git push
+$git pull --> combines $git fetch & merge
+
+Stay in-sync with a "forked-repo": upstream
+$git remote add upstream <_forked_repo_address_referrence_> --> for tracking purposes --> /sthen run $git fetch upstream...to start tracking that forked repo
+$git fetch upstream --> search for updates in the forked repo
+$git merge upstream/master --> to finalize the process of staying in-sync with the forked repo
+$git remote remove <_upstream: removes the upstream_>
+
+
+$git push ((remote))
+ [remote "<name>"]
+                url = <URL>
+                pushurl = <pushurl>
+                push = <refspec>
+                fetch = <refspec>
+
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+Configure
+
+$git config --get remote.origin.url
+$git config --local user.name "user_name"
+$git config --global user.name "user_name"
+$git config --local user.email "user_email"
+$git config --global user.email "user_email"
+
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
