@@ -1,4 +1,22 @@
 Git Version Control --> works a lot better in GitBash
+
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+Top 10 best Git hosting solutions and services in 2021
+
+    Bitbucket.
+    GitLab.
+    Perforce.
+    Beanstalk.
+    Amazon AWS CodeCommit.
+    Codebase.
+    Microsoft Azure DevOps.
+    SourceForge.
+	Gerrit.
+
+
+Sep 1, 2021
+
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 GitHub: Multiple Account --> .gitconfig
@@ -19,10 +37,10 @@ Host github.com-<_github_2nd-accountname_>
 	name = star_ranger01
 	email = star_ranger01@comcast.net
 
-Linking Github:
+Linking Github: via cloning vs. manual link
 $git clone git@github.com-<_multipleAccounts_>:<_multipleAccounts_>/<_reponame_>.git --> cloning the repo
 $git remote add origin git@github.com-<_multipleAccounts_>:<_multipleAccounts_>/<_reponame_>.git --> without cloning
-$git merge --[no-]allow-unrelated-histories <_commit_hash_from_remote_>
+$git merge --[no-]allow-unrelated-histories <_commit_hash_from_remote_> --> use in a manual link
 
 
 
@@ -66,6 +84,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 Working Tree: examine & review
 $git log
+$git log --all --graph
 $git log --all --decorate oneline --graph
 $alias graph = "git log --all --decorate --oneline --graph"
 $graph
@@ -142,11 +161,16 @@ $git fetch --> review and/or save to a branch, then use $git merge origin/master
 $git push
 $git pull --> combines $git fetch & merge
 
-Stay in-sync with a "forked-repo": upstream
-$git remote add upstream <_forked_repo_address_referrence_> --> for tracking purposes --> /sthen run $git fetch upstream...to start tracking that forked repo
+Remotes via Forks: working with other repos in-collaborative manner 
+Setup & workflow: make the fork in GitHub -> then clone to local -> then locally make the changes by following the "Feature Branch Workflow" -> then stay in-sync with all three copies -> then make contributions to the project/original repo via "Pull Request" in GitHub account
+Manual process: add upstream remote -> then make a fetch
+Auto process: after the fork -> then make a fetch upstream
+Stay in-sync with a "forked-repo": make a fetch & merge/pull upstream 
+$git remote add upstream <_forked_repo_address_referrence_> --> for tracking purposes --> then run $git fetch upstream...to start tracking that forked repo
 $git fetch upstream --> search for updates in the forked repo
 $git merge upstream/master --> to finalize the process of staying in-sync with the forked repo
-$git remote remove <_upstream: removes the upstream_>
+$git remote remove <_name_of_remote_branch_being_tracked_>
+$git remote remove upstream <_name_of_remote_branch_being_tracked_> --> removes the upstream branch
 
 
 $git push ((remote))
