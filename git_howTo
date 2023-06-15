@@ -22,10 +22,15 @@ Host github.com-<_github_2nd-accountname_>
 Linking Github:
 $git clone git@github.com-<_multipleAccounts_>:<_multipleAccounts_>/<_reponame_>.git --> cloning the repo
 $git remote add origin git@github.com-<_multipleAccounts_>:<_multipleAccounts_>/<_reponame_>.git --> without cloning
+$git merge --[no-]allow-unrelated-histories <_commit_hash_from_remote_>
 
 
 
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+Working with GitHub:
+Tracking Remotes
+$git branch --set-upstream-to=origin/<_remote_branchname_> <_local_branchname_>
 
 Staging & Committing --> every commit has a 40 hexidecimal SHA1 Hash. First seven characters are shown.
 $git status
