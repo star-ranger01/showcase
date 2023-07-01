@@ -2,6 +2,76 @@ Git Version Control --> works a lot better in GitBash
 
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
+Feature Branch Workflow
+1. Create feature branch
+2. Upload to GitHub
+3. Create Pull Request
+4. Merge feature branch
+
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+Working with staging & commits
+Corey Schafer --> when changes (while in the staging & commiting) are not part of other repos but only to one owner repo
+$git checkout <_file_> --> before making the commit to revert back the changes
+$git commit --amend -m "_correct message_" --> modify commit message of the last commit after mistake without making another commit
+$git commit --amend <press "Enter"> --> modify commited files (by adding more file) of the last commit after forgotten
+$git log
+$git log --stat --> show file changes within the commit
+Cherry pick: moving commits from branch-to-branch (making commits in the wrong branch)
+$git log --> copy the hash
+$git cherry-pick --> makes commit based-on the previous commit on the other branch by making a copy, recommend to delete the same commit left on the other branch
+$git reset --soft --> of the initial commit so that the staging area is minus the "cherry-pick"
+$git reset <_hash_> --> defaults to mix reset
+$git reset --hard <_hash_> --> lose changes back to initial state
+$git clean -df --> get rid of untracked: (d)irectory, & (f)ile
+$git reflog --> walkthough 
+$git garbage
+$git revert -->
+
+
+
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+$git add <_filename_> --> tracks a particular file
+$git add . --> tracks all files in the directory
+$git add partword* --> wildcard tracks file with same partwords
+
+Removing files:
+$git rm - Remove files from the working tree and from the index
+$git rm --cached
+$git rm <_filename_> --> does 2 things: a) removes file in the Working Tree, and then b) stages the removal action in the Staging Area; therefore it will also remove the same file in the Staging Area for consistency
+
+
+Undo a working tree change: effects areas of Git in the Working Tree & Staging Area
+The workflow: while in the Working Tree -> analyze the difference between the Working Tree & Staging Area
+$git diff
+$git checkout --<_filename_> --> Git will discard the changes in the working directory/tree. Discarded changes will be lost since it did not enter into the Staging Area.
+$more <_filename_> --> to show proof of the removal affects
+
+Undo staging of files: effects areas of Git in the Staging Area & History
+$git reset HEAD <_filename_>
+
+Restore a file from an earlier commit:
+$git log --<_filename_> --> to review the affected file & its history
+$git chechout <_commit_first5hexidecimalcharacters_> -- <_specificfilename_> --> retrieves the file in the previous version & restores it in the working directory/tree
+$ls --> to review the file in the working directory
+$git status --> see the retreival file not only restored in the working directory/tree, but also it has been staged automatically & ready to be commited
+
+Git do not track: critical files (secret keys/pass that ARE necessary during development) and/or non critical files (log info, etc.)
+.gitignore file --> make a decision about extension names and other ways to be as wide or specific Git will "ignore" from tracking the file
+$git status --> to review that the ".gitignore" file is available & if the do not track file is in the working tree is not listed; if true, then commit the ".gitignore" file
+$git add & commit .gitignore
+
+
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+3 Areas of a Git Repository:
+1) Working Tree: is what is visibly in local machine file system; working with files via adding, removing/deleting, editing, etc.
+2) Staging Area (Index): receives/takes-in the versions from the Working Tree; then additional changes can be made before making a commit/save-point to be stored in history in .git directory
+3) History: equivalent to commit graph stored in .git directory; also stored in this docket are the metadata which in turn are used to create the GitHub repository or can be handed of to anyone and be able to recreate the project with full history
+
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
 Top 10 best Git hosting solutions and services in 2021
 
     Bitbucket.
@@ -34,14 +104,31 @@ Host github.com-<_github_2nd-accountname_>
 
 
 [user]
-	name = star_ranger01
-	email = star_ranger01@comcast.net
+	name = <_useraccountname_>
+	email = <_useraccountemail_>
 
+Linking
 Linking Github: via cloning vs. manual link
 $git clone git@github.com-<_multipleAccounts_>:<_multipleAccounts_>/<_reponame_>.git --> cloning the repo
 $git remote add origin git@github.com-<_multipleAccounts_>:<_multipleAccounts_>/<_reponame_>.git --> without cloning
 $git merge --[no-]allow-unrelated-histories <_commit_hash_from_remote_> --> use in a manual link
 
+[core]
+	repositoryformatversion = 0
+	filemode = false
+	bare = false
+	logallrefupdates = true
+	symlinks = false
+	ignorecase = true
+[user]
+	email = <_useraccountemail_>
+	name = <_useraccountname_>
+[remote "origin"]
+	url = git@github.com-<_username_>:<_useraccount_>/<_reponame_>.git
+	fetch = +refs/heads/*:refs/remotes/origin/*
+[branch "main"]
+	remote = origin
+	merge = refs/heads/main
 
 
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
@@ -49,6 +136,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 Working with GitHub:
 Tracking Remotes
 $git branch --set-upstream-to=origin/<_remote_branchname_> <_local_branchname_>
+$git push --set-upstream origin <_local branch other than main_> ---> when created locally a branch therefore there is no upstream branch when pushing from it. This command is use to push the current branch and set the remote as upstream. To auto setup this given situation, see "push.autoSetupRemote" in "git help config".
 
 Staging & Committing --> every commit has a 40 hexidecimal SHA1 Hash. First seven characters are shown.
 $git status
@@ -69,33 +157,55 @@ $cat
 
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
+There is no tracking information for the current branch.
+Please specify which branch you want to merge with.
+See git-pull(1) for details.
+
+    git pull <remote> <branch>
+
+If you wish to set tracking information for this branch you can do so with:
+
+    git branch --set-upstream-to=<remote>/<branch> feature
+
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
 Branching --> used to work in parallel off of the same exact copy. Git automatically creates & names a branch called: main
+$ git push --set-upstream origin <_newLocalBranch_> --> to push from new local branch (that, GitHub have no prior knowledge of it) to GitHub main.
 $git branch
+$git branch --merged
 $git branch -a --> shows all the branches: local & remote
 $git branch -r --> shows the remote branches only
 $git branch <_branchname_> --> creates a new branch locally
 $git checkout -b <_branchname_> --> creates new branch and checkout at the same time
 $git checkout <_branchname_>
+$git branch -d <_branchname_> --> cleanup after merging, when the "HEAD" is pointing to the same commit as with both the "master/main" & the tip of the branch, then the branch can be deleted.
+$git branch -D <_branchname_> --> cleanup by force, to force Git to delete a branch that is depended of its "parent-commit"
 
 Local 2nd-Branch --> to push to repo
 $git push origin <_local_2nd-branch_> 
 
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
-Working Tree: examine & review
-$git log
+Working Tree: 
+Examine & review
+$git log --> view the history in the CLI
+$git reflog
+$git log -p --> to show the changes of each commit
 $git log --all --graph
-$git log --all --decorate oneline --graph
+$git log --all --decorate --oneline --graph
 $alias graph = "git log --all --decorate --oneline --graph"
 $graph
-$git diff <_branchname_>..<_otherbranchname_>
+$git diff <_branchname_>..<_otherbranchname_> --> use to analyze the difference between two branches
+$git diff --staged --> use to analyze the difference that will be committed between the Staging Area and the History
 
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 Merging
 
 Remotes:
+$git branch --set-upstream-to=<_remote_>/<_branch_> <_local_branch_> --> to set tracking information for current local branch
 $git pull
+$git pull <_remote_> <_branch_> --> to merge with a remote & the tracking information for the current branch.
 $git fetch
 $git push
 
@@ -122,7 +232,7 @@ Conflict areas
 Conflict areas
 >>>>>>OtherBranch
 
-Step 2: stage the resolution like when committing --> git add, then status, the create a "merge commit-message"
+Step 2: stage the resolution like when committing --> git add, then status, then create a "merge commit-message"
 Step 3: delete the branch
 
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
@@ -155,22 +265,25 @@ $git stash apply <_label_> --> to reuse/reapply the particular stash other than 
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 Remotes
+$git branch -r
 $git remote
-$git remote -v
+$git remote -v --> shows remote url
 $git fetch --> review and/or save to a branch, then use $git merge origin/master
 $git push
 $git pull --> combines $git fetch & merge
 
 Remotes via Forks: working with other repos in-collaborative manner 
-Setup & workflow: make the fork in GitHub -> then clone to local -> then locally make the changes by following the "Feature Branch Workflow" -> then stay in-sync with all three copies -> then make contributions to the project/original repo via "Pull Request" in GitHub account
+Setup & workflow: make the fork in GitHub -> then clone to local -> then locally make the changes by following the "Feature Branch Workflow" -> then stay in-sync with all three copies -> then make contributions to the project/original repo via "Pull Request (PR)" in GitHub account -> then post "PR" accepted make a cleanup by deleting both the local and remote branches
 Manual process: add upstream remote -> then make a fetch
 Auto process: after the fork -> then make a fetch upstream
-Stay in-sync with a "forked-repo": make a fetch & merge/pull upstream 
-$git remote add upstream <_forked_repo_address_referrence_> --> for tracking purposes --> then run $git fetch upstream...to start tracking that forked repo
+
+Stay in-sync:
+A "forked-repo": make a fetch & merge/pull upstream 
+$git remote add upstream <_forked_repo_address_referrence_> --> for tracking purposes --> immediately then run $git fetch upstream...to start tracking that forked repo
 $git fetch upstream --> search for updates in the forked repo
 $git merge upstream/master --> to finalize the process of staying in-sync with the forked repo
 $git remote remove <_name_of_remote_branch_being_tracked_>
-$git remote remove upstream <_name_of_remote_branch_being_tracked_> --> removes the upstream branch
+$git remote remove upstream {<_name_of_remote_branch_being_tracked_>} --> removes the upstream branch
 
 
 $git push ((remote))
@@ -189,6 +302,10 @@ $git config --local user.name "user_name"
 $git config --global user.name "user_name"
 $git config --local user.email "user_email"
 $git config --global user.email "user_email"
+$git config --list
+$gir config --list --show-origin
+$git config --unset <_scope(--local or --global)_> <_property_>
+$git config --edit
 
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
