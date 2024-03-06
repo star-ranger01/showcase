@@ -23,7 +23,7 @@ $git cherry-pick --> makes commit based-on the previous commit on the other bran
 $git reset --soft --> of the initial commit so that the staging area is minus the "cherry-pick"
 $git reset <_hash_> --> defaults to mix reset
 $git reset --hard <_hash_> --> lose changes back to initial state
-$git clean -df --> get rid of untracked: (d)irectory, & (f)ile
+$git clean -df --> !!!! WARNING !!!!! it will forever/no recovery get rid of untracked: (d)irectory, & (f)ile
 $git reflog --> walkthough 
 $git garbage
 $git revert -->
@@ -156,7 +156,7 @@ I don't knows
 $cat
 
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-
+*****
 There is no tracking information for the current branch.
 Please specify which branch you want to merge with.
 See git-pull(1) for details.
@@ -166,10 +166,29 @@ See git-pull(1) for details.
 If you wish to set tracking information for this branch you can do so with:
 
     git branch --set-upstream-to=<remote>/<branch> feature
+*****
+fatal: The current branch feature has no upstream branch.
+To push the current branch and set the remote as upstream, use
 
+    git push --set-upstream origin feature
+
+To have this happen automatically for branches without a tracking
+upstream, see 'push.autoSetupRemote' in 'git help config'.
+*****
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 Branching --> used to work in parallel off of the same exact copy. Git automatically creates & names a branch called: main
+
+***
+
+When creating a new branch, set up branch.<name>.remote and branch.<name>.merge configuration entries to set "upstream" tracking configuration for the new branch. This configuration will tell git to show the relationship between the two branches in git status and git branch -v. Furthermore, it directs git pull without arguments to pull from the upstream when the new branch is checked out.
+
+The exact upstream branch is chosen depending on the optional argument: -t, --track, or --track=direct means to use the start-point branch itself as the upstream; --track=inherit means to copy the upstream configuration of the start-point branch.
+
+The branch.autoSetupMerge configuration variable specifies how git switch, git checkout and git branch should behave when neither --track nor --no-track are specified:
+
+***
+
 $ git push --set-upstream origin <_newLocalBranch_> --> to push from new local branch (that, GitHub have no prior knowledge of it) to GitHub main.
 $git branch
 $git branch --merged
@@ -264,7 +283,18 @@ $git stash apply <_label_> --> to reuse/reapply the particular stash other than 
 
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
+Indexing/Staging
+$ git rm --cached <filename> --> remove it from the index
+
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+Commit
+$ git reset --> in order to recover if you make a commit and then find a mistake immediately after that
+
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
 Remotes
+$git remote add <user/contributor> <userlocation> --> create the shorthand for remote "git pull"
 $git branch -r
 $git remote
 $git remote -v --> shows remote url
