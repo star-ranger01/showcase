@@ -1,7 +1,7 @@
 Evereday Git: PART 1 & PART 2
 ################
 !!! WARNING !!!
-gggggggggggggggggg
+
 $ git reset --> Be careful with this commands: in addition to losing any changes in the working directory, it will also remove all later commits from this branch. If this branch is the only branch containing those commits, they will be lost. Also, don’t use git reset on a publicly-visible branch that other developers pull from, as it will force needless merges on other developers to clean up the history. If you need to undo changes that you have pushed, use git revert instead.
 	--> use "git revert"
 $ git clean --> wiped out all files in desktop
