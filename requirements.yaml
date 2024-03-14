@@ -6,3 +6,5 @@ dependencies:
     version: 2.2.1
   - web_app_sharing: streamlit
     version: 1.31.0
+  - api_trading: alpaca-py
+    version: 0.18.0

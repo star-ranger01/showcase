@@ -2,8 +2,10 @@
 
 # Import dependencies.
 import sys
+from app_tools import cln
 from frontend import st, csv_ex
 #from frontend import csv_example as csv
+cln
 
 # Title.
 st.title(':blue[Hellooo...Universe!!!] :sunglasses:')
@@ -24,7 +26,7 @@ dfs = csv_ex.data()
 # Create tab1.
 with tab1:
     # Create container for dataframes to land.
-    with st.container(height=200, border=200):
+    with st.container():#height=200, border=200):
         
         # Extract dataframes.
         for k, v in symbol_dict.items():
