@@ -24,7 +24,8 @@ dfs = csv_ex.data()
 # Create tab1.
 with tab1:
     # Create container for dataframes to land.
-    with st.container(height=200, border=200):
+    with st.container():
+        # maybe (height=200, border=200):
         
         # Extract dataframes.
         for k, v in symbol_dict.items():
