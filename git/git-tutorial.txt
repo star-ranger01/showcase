@@ -1,0 +1,367 @@
+Core Git 
+The core Git is often called "plumbing", with the prettier user interfaces on top of it called "porcelain". You may not want to use the plumbing directly very often, but it can be good to know what the plumbing does when the porcelain isn’t flushing.
+
+################
+!!! WARNING !!!
+
+$ git reset --> Be careful with this commands: in addition to losing any changes in the working directory, it will also remove all later commits from this branch. If this branch is the only branch containing those commits, they will be lost. Also, don’t use git reset on a publicly-visible branch that other developers pull from, as it will force needless merges on other developers to clean up the history. If you need to undo changes that you have pushed, use git revert instead:
+
+	--> use "git revert"
+
+$ git clean --> wiped out all files in desktop
+
+################
+
+***** Creating a Git repository *****
+Creating a new Git repository couldn’t be easier: all Git repositories start out empty, and the only thing you need to do is find yourself a subdirectory that you want to use as a working tree - either an empty one for a totally new project, or an existing working tree that you want to import into Git.
+$ mkdir git-tutorial
+$ cd git-tutorial
+$ git init --> that it will have created a local .git directory setup for your new project. You will now have a .git directory, and you can inspect that with ls. For your new empty project, it should show you three entries, among other things:
+$ git config --> a proper introduction to Git
+$ ls .git --> inspect the local .git directory: Three entries to look up
+	1) HEAD file -> has ref: refs/heads/master. This is similar to a symbolic link and points at refs/heads/master relative to the HEAD file.
+	2) subdirectory name: objects -> which contains all the real data
+	3) subdirectory name: refs -> which contains references to objects: heads (branches) & tags -->> they contain references to any number of different heads of development (aka branches), and to any tags that you have created to name specific versions in your repository.
+
+Special "main/master" head:
+One note: the special "main/master" head is the default branch, which is why the .git/HEAD file was created points to it even if it doesn’t yet exist. Basically, the HEAD link is supposed to always point to the branch you are working on right now, and you always start out expecting to work on the master branch.
+However, this is only a convention, and you can name your branches anything you want, and don’t have to ever even have a master branch. A number of the Git tools will assume that .git/HEAD is valid, though.
+
+
+***** Populating a Git repository *****
+
+Working tree:
+Start off with just creating any random files that you want to maintain in your Git repository. 
+$ echo "Hello World" >hello
+$ echo "Silly example" >example
+- you have now created two files in your --> working tree (aka working directory)
+ 
+- but to actually check-in your hard work, you will have to go through two steps: 
+	1) fill in the index file (aka cache) with the information about your working tree state.
+		- git update-index program --> The first step is trivial: when you want to tell Git about any changes to your working tree, you use the git update-index program. That program normally just takes a list of filenames you want to update
+		- but to avoid trivial mistakes, it refuses to:
+			--> add new entries to the index (or remove existing ones) unless you explicitly tell it that you’re adding a new entry with the --add flag (or removing an entry with the --remove) flag.
+	2) commit that index file as an object.
+
+
+==== Check-in your work ====
+So to populate the index with the two files you just created, you can do
+
+1) 
+Index file update w/ "Working Tree State":
+$ git update-index --add hello example --> use the --add flag because these files are newly introduced to Git. In the subsequent changes to those files to be added to the git index do not need to use the --add flag
+
+if you now look into your object directory, you’ll notice that Git will have added two new objects to the object database. If you did exactly the steps above, you should now be able to do
+
+$ ls .git/objects/??/*
+
+and see two files:
+
+.git/objects/55/7db03de997c86a4a028e1ebd3a1ceb225be238
+.git/objects/f2/4c74a2e500f5ee1332c86b94199f52b1d1d962
+
+If you want to, you can use git cat-file to look at those objects, but you’ll have to use the object name, not the filename of the object:
+
+$ git cat-file -t 557db03de997c86a4a028e1ebd3a1ceb225be238
+
+where the -t tells git cat-file to tell you what the "type" of the object is. Git will tell you that you have a "blob" object (i.e., just a regular file), and you can see the contents with
+
+$ git cat-file blob 557db03
+
+which will print out "Hello World". The object 557db03 is nothing more than the contents of your file hello.
+The above digression was just to show that git update-index did something magical, and actually saved away the contents of your files into the Git object database.
+
+Updating the index did something else too: 
+- it created a .git/index file. This is the index that describes your current working tree, and something you should be very aware of. Again, you normally never worry about the index nor the looking up object files itself, 
+but you should be aware of the fact that you have not actually really "checked-in" your files into Git so far, you’ve only told Git about them.
+However, since Git knows about them, you can now start using some of the most basic Git commands to manipulate the files or look at their status.
+
+$ echo "It's a new day for git" >>hello --> add new line to hello.file
+
+***diff-files -p command***
+$ git diff-files --> not readable
+$ git diff-files -p (or just plain: git diff) --> readable; 
+$ git diff --> shorthand
+
+***restore command***
+$ git restore <file> --> to discard changes in working directory
+
+***diff-files command --> see difference ("Working Tree" vs Index File)(specifically in this tutorial: pre "Initial Commit")***
+Index vs. "Working Tree"
+git diff-files --> always shows us the difference between what is recorded in the index, and what is currently in the working tree. That’s very useful.
+--> i.e. the diff of the change we caused by adding another line to hello.
+
+diff --git a/hello b/hello
+index 557db03..263414f 100644
+--- a/hello
++++ b/hello
+@@ -1 +1,2 @@
+ Hello World
++It's a new day for git
+
+2)
+***** Committing Git state *****
+
+Now, we want to go to the next stage in Git, which is to take the files that Git knows about in the index, and commit them as a "Real Tree". We do that in two phases: 
+	Step-1) creating a ___Tree Object___
+	Step-2) and committing that tree object as a ___Commit Object___ plus/together with an explanation of what the tree was all about, along with information of how we came to that state.
+
+Step-1: 
+Creating a ___Tree Object___ is trivial, and is done with --> git write-tree
+
+There are no options or other input: git write-tree will take the current index state, and write an object that describes that whole index. In other words, we’re now tying together all the different filenames with their contents (and their permissions), and we’re creating the equivalent of a Git "directory" object:
+
+$ git write-tree
+
+and this will just output the name of the resulting tree, in this case (if you have done exactly as I’ve described) it should be
+8988da15d077d4829fc51d8544c097def6644dbb
+which is another incomprehensible object name. 
+
+$ git cat-file -t 8988d... --> to see that this time the object is not a "blob" object, but a "tree" object (you can also use git cat-file to actually output the raw object contents, but you’ll see mainly a binary mess, so that’s less interesting).
+
+$ git cat-file -t <object_name: directory + first five binary> --> output is tree
+$ git cat-file tree <object_name: directory + first five binary> --> output is not readable
+
+Step-2:
+Normally, use git commit-tree and pass-in the object_name & the message.
+And this is where we create the --> .git/refs/heads/master file 
+
+which is pointed at by HEAD. This file is supposed to contain ___the reference___ to the top-of-tree of the "master branch"
+
+and since that’s exactly what git commit-tree spits out, we can do this all with a sequence of simple shell commands:
+
+***commit command***
+$ git commit-tree 
+
+normally takes several arguments: 
+a) it wants to know what ___The Parent___ of a commit was, but since this is the first commit ever in this new repository, and it has no parents, we only need to pass in the object name of the tree. 
+
+b) However, git commit-tree also wants to get a ___Commit Message___ on its standard input, and it will write out the resulting object name for the commit to its standard output. And this is where we create the ___.git/refs/heads/master file___ which is pointed at by ___HEAD___. This file is supposed to ___contain the reference___ to the top-of-tree of the ___master branch___, and since that’s exactly what git commit-tree spits out, we can do this all with a sequence of simple shell commands:
+
+$ tree=$(git write-tree)
+
+$ commit=$(echo 'Initial commit' | git commit-tree $tree)
+
+$ git update-ref HEAD $commit   ---> Normally you ___do this only once___ for a project ever....this command use for "Initial Commit", In this case this creates ___a totally "new commit"___, which is --> not related to anything else___all later commits___ will be parented on top of an earlier commit using the flag: <-p HEAD>
+the flags to tell commit that the HEAD was the parent of the new commit, AND that this wasn't an initial commit any more.
+
+Alternatively, the shorthand:
+$ git commit
+
+
+
+***** MAKE A CHANGE --> POST A COMMIT*****
+Remember how we did the git update-index on file hello and then we changed hello afterward, and resulted in the ability to compare the new state of hello with the state we saved in the index file (that state/situation referring to was before --> any commit)
+
+===CHANGES MADE --> Post a Commit (specifically in this tutorial: post "Initial Commit")===
+===Index State vs. "Working Tree" State --> post a commit===
+Further, remember how I said that __git write-tree__ writes the contents of the index file to the tree, and thus what we just committed was in fact the original contents of the file hello, not the new ones. We did that on purpose, to show the difference between the index state, and the state in the working tree, and how they don’t have to match, even when we commit things.
+
+***diff-files -p command***
+As before, if we do git diff-files -p in our git-tutorial project, we’ll still see the same difference we saw last time: the index file hasn’t changed by the act of committing anything.
+
+***diff-index command --> diff againts a ___Committed Tree___(vs. either: "Working Tree" or Index File)***
+However ___now that we HAVE COMMITTED something___ we can also learn to use a new command: 
+
+$ git diff-index
+
+Unlike git diff-files (which showed the difference between the index file and the working tree):
+
+git diff-index -->> shows the differences between a ___Committed Tree___ and EITHER: Index File (OR) Working Tree. 
+In other words, git diff-index wants a tree to be diffed against, and before we did the commit, we couldn’t do that, because we didn’t have anything to diff against.
+
+But now we can do
+
+
+$ git diff-index -p HEAD --> to compare current working tree against the tree just written__COMMITTED TREE__
+
+(where -p has the same meaning as it did in git diff-files), and it will show us the same difference, but for a totally different reason. Now we’re comparing the working tree not against the index file, but against the tree we just wrote. It just so happens that those two are obviously the same, so we get the same result.
+
+Again, because this is a common operation, you can also just shorthand it with
+
+$ git diff HEAD
+
+***diff --cached HEAD command***
+In other words, git diff-index ___NORMALLY COMPARES___a ...COMMITTED TREE... against the working tree___BUT when given the <--cached> flag,
+
+$ git diff --cached HEAD
+
+--> it is told to instead compare against just the ___index cache contents___, and __ignore the current working tree state entirely___.
+ 
+Since we just wrote the index file to HEAD, doing git diff-index --cached -p HEAD should thus return an empty set of differences, and that’s exactly what it does.
+
+
+====demonstration --> STAGING (index file) "diff-againts" ___COMMITTED TREE___====
+Commit the changes (the addition line to "hello" file): by updating the index & write the tree
+
+$ git update-index hello --> note how we didn’t need the --add flag this time, since Git knew about the file already. In the subsequent changes to those files to be added to the git index do not need to use the --add flag
+
+Now, since we’ve updated hello in the index, we can commit the new version. We could do it by writing the tree by hand again, and committing the tree:
+ 
+<-p HEAD> .... (this time we’d have to use the -p HEAD flag to tell commit that the HEAD was the parent of the new commit, and that this wasn’t an initial commit any more), but you’ve done that once already, so let’s just use the helpful script this time:
+
+$ tree=$(git write-tree)
+$ commit=$(echo '<message>' | git commit-tree $tree)
+$ git update-ref -p HEAD $commit -->  -p HEAD...the flags to tell commit that the HEAD was the parent of the new commit, AND that this wasn't an initial commit any more.
+
+$ git commit --> shorthand that will "git write-commit" the tree & ask for a "message"
+
+You’ve now made your first real Git commit. And if you’re interested in looking at what git commit really does, feel free to investigate: it’s a few very simple shell scripts to generate the helpful (?) commit message headers, and a few one-liners that actually do the commit itself (git commit).
+
+$ ls .git/objects/??/* --> see the latest by date & time. Alternatively, go back to output & copy the
+$ git cat-file -t <object_name: directory + first five binary> --> output is commit
+$ git cat-file commit <object_name: directory + first five binary> --> output is not readable
+
+
+==== Inspecting Changes ====
+
+While creating changes is useful, it’s even more useful if you can tell later what changed. The most useful command for this is another of the diff family:
+
+$ git diff-tree
+
+
+git diff-tree can be given two arbitrary trees, and it will tell you the differences between them. Perhaps even more commonly, though, you can give it just a single commit object, and it will figure out the parent of that commit itself, and show the difference directly. Thus, to get the same diff that we’ve already seen several times, we can now do
+
+$ git diff-tree -p HEAD
+
+(again, -p means to show the difference as a human-readable patch), and it will show what the last commit (in HEAD) actually changed.
+More interestingly, you can also give git diff-tree the 
+
+<--pretty>..... flag, which tells it to also show the commit message and author and date of the commit, and you can tell it to show a whole series of diffs. Alternatively, you can tell it to be "silent", and not show the diffs at all, but just show the actual commit message.
+
+In fact, together with the 
+
+git rev-list program -->> (which generates a list of revisions), git diff-tree ends up being a veritable fount of changes. You can emulate git log, git log -p, etc. with a trivial script that pipes the output of git rev-list to git diff-tree --stdin, which was exactly how early versions of git log were implemented.
+
+***** Tagging a version *****
+
+In Git, there are two kinds of tags, a "light" one, and an "annotated tag".
+1) A "light" tag is technically nothing more than a branch, except we put it in the .git/refs/tags/ subdirectory instead of calling it a head. So the simplest form of tag involves nothing more than
+	
+	$ git tag my-first-tag
+
+	which just writes the current HEAD into the .git/refs/tags/my-first-tag file, after which point you can then use this symbolic name for that particular state. You can, for example, do
+
+	$ git diff my-first-tag
+
+	to diff your current state against that tag which at this point will obviously be an empty diff, but if you continue to develop and commit stuff, you can use your tag as an "anchor-point" to see what has changed since you tagged it.
+2) An "annotated tag" is actually a real Git object, and contains not only a pointer to the state you want to tag, but also a small tag name and message, along with optionally a PGP signature that says that yes, you really did that tag. You create these annotated tags with either the -a or -s flag to git tag:
+
+	$ git tag -s <tagname>
+
+	which will sign the current HEAD (but you can also give it another argument that specifies the thing to tag, e.g., you could have tagged the current mybranch point by using git tag <tagname> mybranch).
+	You normally only do signed tags for major releases or things like that, while the light-weight tags are useful for any marking you want to do — any time you decide that you want to remember a certain point, just create a private tag for it, and you have a nice symbolic name for the state at that point.
+
+
+***** Copying repositories *****
+
+Git repositories are normally totally self-sufficient and relocatable. Unlike CVS, for example, there is no separate notion of "repository" and "working tree". A Git repository normally is the working tree, with the local Git information hidden in the .git subdirectory. There is nothing else. What you see is what you got.
+
+
+This has two implications:
+
+1) if you grow bored with the tutorial repository you created (or you’ve made a mistake and want to start all over), you can just do simple
+
+    $ rm -rf git-tutorial
+
+    and it will be gone. There’s no external repository, and there’s no history outside the project you created.
+
+2) if you want to move or duplicate a Git repository, you can do so. There is git clone command,
+   but if all you want to do is just -->>> to create a copy of your repository (with all the full history that went along with it), 
+   you can do so with "a regular"
+ 
+   cp -a git-tutorial new-git-tutorial.
+
+    Note that when you’ve moved or copied a Git repository, your Git index file (which caches various information, notably some of the "stat" information for the files involved) will likely need to be refreshed. 
+    So after you do a cp -a to create a new copy, you’ll want to do
+
+    $ git update-index --refresh
+
+    in the new repository to make sure that the index file is up to date.
+
+	Note that the second point is true even across machines. 
+      You can duplicate a remote Git repository with any regular copy mechanism, be it scp, rsync or wget.
+	When copying a remote repository, you’ll want to at a minimum update the index cache when you do this, and especially with other peoples' repositories you often want to make sure that the index cache is in some known state (you don’t know what they’ve done and not yet checked in), so usually you’ll precede the git update-index with a
+
+	$ git read-tree --reset HEAD
+	$ git update-index --refresh
+
+	which will force a total index re-build from the tree pointed to by HEAD. It resets the index contents to HEAD, and then the git update-index makes sure to match up all index entries with the checked-out files. If the original repository had uncommitted changes in its working tree, git update-index --refresh notices them and tells you they need to be updated.
+	The above can also be written as simply
+
+	$ git reset
+
+	and in fact a lot of the common Git command combinations can be scripted with the git xyz interfaces.
+
+Many (most?) public remote repositories will not contain any of the checked out files or even an index file, and will only contain the actual core Git files. Such a repository usually doesn’t even have the .git subdirectory, but has all the Git files directly in the repository.
+
+To create your own local live copy of such a "raw" Git repository, you’d first create your own subdirectory for the project, and then copy the raw repository contents into the .git directory. For example, to create your own copy of the Git repository, you’d do the following
+
+$ mkdir my-git
+$ cd my-git
+$ rsync -rL rsync://rsync.kernel.org/pub/scm/git/git.git/ .git
+
+followed by
+
+
+$ git read-tree HEAD
+
+to populate the index. However, now you have populated the index, and you have all the Git internal files, but you will notice that you don’t actually have any of the working tree files to work on. To get those, you’d check them out with
+
+$ git checkout-index -u -a
+
+where the -u flag means that you want the checkout to keep the index up to date (so that you don’t have to refresh it afterward), and the -a flag means "check out all files" (if you have a stale copy or an older version of a checked out tree you may also need to add the -f flag first, to tell git checkout-index to force overwriting of any old files).
+
+Again, this can all be simplified with
+
+$ git clone git://git.kernel.org/pub/scm/git/git.git/ my-git
+$ cd my-git
+$ git checkout
+
+which will end up doing all of the above for you.
+
+You have now successfully copied somebody else’s (mine) remote repository, and checked it out.
+
+***** Creating a new branch *****
+
+Branches in Git are really nothing more than pointers into the Git object database from within the .git/refs/ subdirectory, and as we already discussed, the HEAD branch is nothing but a symlink to one of these object pointers.
+
+You can at any time create a new branch by just picking an arbitrary point in the project history, and just writing the SHA-1 name of that object into a file under .git/refs/heads/. You can use any filename you want (and indeed, subdirectories), but the convention is that the "normal" branch is called master. That’s just a convention, though, and nothing enforces it.
+
+To show that as an example, let’s go back to the git-tutorial repository we used earlier, and create a branch in it. You do that by simply just saying that you want to check out a new branch:
+
+$ git switch -c mybranch
+
+will create a new branch based at the current HEAD position, and switch to it.
+
+
+
+You can always just jump back to your original master branch by doing
+
+$ git switch master
+
+(or any other branch-name, for that matter) and if you forget which branch you happen to be on, a simple
+
+$ cat .git/HEAD
+
+will tell you where it’s pointing. To get the list of branches you have, you can say
+
+$ git branch
+
+which used to be nothing more than a simple script around ls .git/refs/heads. There will be an asterisk in front of the branch you are currently on.
+
+Sometimes you may wish to create a new branch without actually checking it out and switching to it. If so, just use the command
+
+$ git branch <branchname> [startingpoint]
+
+which will simply create the branch, but will not do anything further. You can then later — once you decide that you want to actually develop on that branch — switch to that branch with a regular git switch with the branchname as the argument.
+
+
+***** Merging two branches *****
+***** Merging external work *****
+***** How does the merge work? *****
+***** Publishing your work *****
+***** Packing your repository *****
+***** Working with Others *****
+***** Working with Others, Shared Repository Style *****
+***** Bundling your work together *****

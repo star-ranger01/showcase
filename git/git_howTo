@@ -8,25 +8,35 @@ Feature Branch Workflow
 3. Create Pull Request
 4. Merge feature branch
 
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 Working with staging & commits
-Corey Schafer --> when changes (while in the staging & commiting) are not part of other repos but only to one owner repo
-$git checkout <_file_> --> before making the commit to revert back the changes
+Corey Schafer --> when changes (while in the staging & commiting) are not part of other repos but only to one owner repo. History is only at local owner. When the hash of a commit has changed from its previous version, it affects the history. Even when undoing or amending commits. So limit changes to history, especially when the work has already been pushed to remote repo and consequently other owner's repos are copied from the same remote repository, and will otherwise cause problems.
+
+$ls -la
+$git checkout <_file_> --> while changes are made but are yet to be staged and before making the commit, will delete the changes made and revert back to the original state of the file.
 $git commit --amend -m "_correct message_" --> modify commit message of the last commit after mistake without making another commit
 $git commit --amend <press "Enter"> --> modify commited files (by adding more file) of the last commit after forgotten
 $git log
 $git log --stat --> show file changes within the commit
 Cherry pick: moving commits from branch-to-branch (making commits in the wrong branch)
 $git log --> copy the hash
-$git cherry-pick --> makes commit based-on the previous commit on the other branch by making a copy, recommend to delete the same commit left on the other branch
-$git reset --soft --> of the initial commit so that the staging area is minus the "cherry-pick"
-$git reset <_hash_> --> defaults to mix reset
-$git reset --hard <_hash_> --> lose changes back to initial state
-$git clean -df --> !!!! WARNING !!!!! it will forever/no recovery get rid of untracked: (d)irectory, & (f)ile
-$git reflog --> walkthough 
-$git garbage
-$git revert -->
+$git cherry-pick --> makes commit based-on the previous commit on the other branch by making a copy, recommend to delete the same commit left on the other branch. So switch to the source branch and try not to lose the work or the changes made. In there, do git log to grab the <commit> state desired; and afterwards either $git reset --soft, mixed, --hard like below: 
+	$git reset --soft <_hash_> --> not losing the work, this will reset to the commit specified and keeps the changes that were being tracked in the staging area by relocating them back to the staging area before those changes were committed in the cherry-picked, which is now relocated to the other branch.
+	$git reset <_hash_> --> note losing the work; defaults to mix reset; similar to reset --soft but keeps the work/changes relocates them to the working-tree.
+	$git reset --hard <_hash_> --> lose all the work/changes that were being tracked in association with the cherry-picked commit (pre-update of the index). If untracked files pre-update of index, those are left alone and not deleted.
+		Recover work/changes after reset --hard: $git reflog (see below), and then $git checkout <_hash_> (detach state by not being on a branch which will in some point the changes made in detach state will be garbage collected. To save the changes while in detach state, create a branch from it.) then check using $git log to confirm recovery.
+
+$git clean -df --> !!!! WARNING !!!!! 
+	Untracked files/directories: it will forever/no recovery get rid of untracked: (d)irectory, & (f)ile
+	Recommend: do a dry run
+
+$git reflog --> a walkthough of what was done. 
+$git garbage --> collects after 30days those files that were deleted
+
+Corey Schafer --> when changes are part of other repos. Local history are part of other owner's repos. Avoid rewriting local history so that it stays in syn with other owner's repos. Look for alternative to $git reset, see below:
+
+$git revert <_hash_> --> makes new commits to revert/undo the effects of the earlier commit(s) therefore avoiding history revision.
 
 
 
@@ -133,10 +143,52 @@ $git merge --[no-]allow-unrelated-histories <_commit_hash_from_remote_> --> use 
 
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
-Working with GitHub:
-Tracking Remotes
-$git branch --set-upstream-to=origin/<_remote_branchname_> <_local_branchname_>
-$git push --set-upstream origin <_local branch other than main_> ---> when created locally a branch therefore there is no upstream branch when pushing from it. This command is use to push the current branch and set the remote as upstream. To auto setup this given situation, see "push.autoSetupRemote" in "git help config".
+Remote: branching
+
+Remote: can be more than one version control provider (GitHub, GitLab, Bitbucket)
+
+Working with GitHub: remote repositories (totally different from the topic "branch" in which deals with tracking what is happening about a branch  by setting up the connection between local and remote via command: $git branch set-upstream-to )
+
+Scenario 1 --> everything is new: no branch, no files, no history
+
+- in local machine, create a new directory same name as the Github repo a step before and do the following: $git init, create new files and history by commits.
+- in Github, create a new repo by naming the repo and that's it, nothing more.
+- in local machine, push work to Github:
+	=> copy the remote repo's url (not the ssh)
+	=> $git remote add origin <_repo-url_> --> configure the reference, "origin" is a conventional way of naming the remote repo. Furthermore, it is possible to add more than one remote references to a single local repo and naming them besides "origin" will be less confusing by its purpose or name of the remote repo provider, e.g. GitLab, Bitbucket ...etc.
+	=> $git push -u origin <_name-of-local-branch> --> push the work to the remote repo. The flag "-u" tells the server that a branch which is not yet created on the server side will be pushed and instructs to go ahead create the new branch so that the remote & local are in sync
+
+Scenario 2 --> when local & remote repository have pre-existing histories which are independent of each other.
+	=> $git branch -M <_remote-primary-branch-name_> --> change the local primary branch name to match the remote primary branch name.
+	=> $git remote add origin <_repo-url_> --> same as Scenario 1
+	=> $git push -u origin main --> rejected...due to lack of common history. 
+	=> !!! WARNING: REWRITE HISTORY !!! --> Solution 1: $git push -u -f origin main --> the flag "-f" is forcing the files to the server resulting in history revision therefore losing critical files to the project. Bad (or maybe good, depends) for others who have cloned the repo and have the original history when they push their own work, problems and headaches.
+
+	=> !!! ALTERNATIVE: NON-HISTORY REVISION !!! (NOTE: take the initial commit of the remote repo click in the commits & take the "Verified" initial commit id/hash {maybe attach this info when pushing work to the remote repo.})
+	Solution 2:
+	=> $git pull origin <_name-of-local-branch_> --> brings down updates from the remote.
+	=> $git rebase origin/<_remote-branch-name_> --> this pull creates a new branch in the local if not already existed the branch the was pulled. Then it populates local file system with the files pulled from the remote.
+	=> $git log --> verify the remote initial commit id/hash
+	=> $git merge <_local-branch_> --> merge relevant local branches to reflect the updates.
+
+	Cameron McKenzie Cheat Method: Scenario 2
+	=> pre-existing local-repo
+	=> pre-exiting remote-repo
+	=> $git clone <_remote-repo_> --> a fetch-and-merge method
+	=> copy & paste --> local-repo files to the cloned repo. !!! EXCEPTION !!!: DO NOT COPY & PASTE....the.git directory of the local to the remote repo since this is the database for the local.
+	=> after copy & paste operation --> delete the local-repo
+	=> source-of-truth --> the cloned repo
+
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+Tracking Remotes: branching
+
+Configure the Reference: git config
+$git branch --set-upstream-to=origin/<_remote_branchname_> <_local_branch-name_> --> establishes the connection by naming the remote branch & its connection to local branch.
+
+$git push --set-upstream origin <_local-branch other than main_> ---> when created locally a branch therefore there is no upstream branch when pushing from it. This command is used to push the current branch and also set the remote as upstream. To auto setup this given situation, see "push.autoSetupRemote" in "git help config".
+
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 Staging & Committing --> every commit has a 40 hexidecimal SHA1 Hash. First seven characters are shown.
 $git status
