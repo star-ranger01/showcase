@@ -2,6 +2,7 @@
 
 # Import dependencies.
 import sys
+from app_tools import cln
 from frontend import st, csv_ex
 #from frontend import csv_example as csv
 
@@ -19,18 +20,20 @@ symbol_dict = {
         }
 
 # Call for the dataframes.
-dfs = csv_ex.data()
+#dfs = csv_ex.data()
+#dfs_cln = cln.janitor(dfs)
+dfs_cln = cln.stock_data
 
 # Create tab1.
 with tab1:
     # Create container for dataframes to land.
-    with st.container():
-        # maybe (height=200, border=200):
+
+    with st.container():#height=200, border=200):
         
         # Extract dataframes.
         for k, v in symbol_dict.items():
             st.text(v)
-            st.dataframe(dfs[k], width=700, height=250)
+            st.dataframe(dfs_cln[k])#, width=700, height=250)
 
 #with tab2:
 #    #df_pctChange = df.iloc[:,0:].pct_change().dropna()

@@ -21,7 +21,20 @@ def data():
     # Read csv into dataframe.
     df = {} 
 
+    #ohlc = ["date", "open", "high", "low", "close"]
+
+    ## Stock dataframes.
+    #amzn_df = data['amzn'][['Date', 'Open', 'High', 'Low', 'Close']]
+    #amzn_df.columns = ohlc
+
+    #sox_df = data["sox"]
+    #sox_df.columns = ohlc
+    #sox_df = sox_df.iloc[0:235].copy()
+
+    #stock_data = (amzn_df, sox_df)
+
     for k, v in csv_dict.items():
+   
 
         # Pandas dataframe.
         csv_df = pct.read_csv(csv_dict[k])
