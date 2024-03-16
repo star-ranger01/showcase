@@ -3,7 +3,7 @@
 # Import dependencies
 import sys
 import pandas as pd
-import streamlit as st
+#import streamlit as st
 
 ''' Percent Change Formula
 Increase = Current Price - Original Price
@@ -11,7 +11,8 @@ Percent Increase = (Increase / Original Price) x 100
 '''
 def read_csv(path):
     df = pd.read_csv(path)
-    #st.dataframe(df)
+    
+    return df
 
 def main():
     original_price = 198.87
