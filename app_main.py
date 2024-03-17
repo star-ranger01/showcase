@@ -21,20 +21,30 @@ symbol_dict = {
 
 # Call for the dataframes.
 #dfs = csv_ex.data()
-#dfs_cln = cln.janitor(dfs)
 dfs_cln = cln.stock_data
+#st.write(dfs_sanitized)
 
 # Create tab1.
 with tab1:
     # Create container for dataframes to land.
 
-    with st.container():#height=200, border=200):
+    with st.container():
         
         # Extract dataframes.
         for k, v in symbol_dict.items():
             st.text(v)
-            st.dataframe(dfs_cln[k])#, width=700, height=250)
+            st.dataframe(dfs_cln[k], width=700, height=250)
+            #sox_dust = cln.janitor(dfs_cln)
 
+    with tab1:
+
+        cln.janitor(dfs_cln[k])
+        dirt = cln.dust
+
+        for i in dirt:
+
+            with tab1:
+                st.write(i)
 #with tab2:
 #    #df_pctChange = df.iloc[:,0:].pct_change().dropna()
 #    st.header("This dataframe is the percent changes.")

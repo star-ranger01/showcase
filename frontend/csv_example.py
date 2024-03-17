@@ -5,7 +5,7 @@ from frontend import st, Path, pct
 
 # Define the paths to the csv files.
 amzn_csv = Path(r"resources/amazon.csv")
-sox_csv = Path(r"resources\SOX_2015_2020.csv")
+sox_csv = Path(r"resources/SOX_2015_2020.csv")
 
 # Create dictionary for paths.
 csv_dict = {
